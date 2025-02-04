@@ -1,9 +1,7 @@
-//Include the library
 #include <MQUnifiedsensor.h>
 #include <ESP8266WiFi.h>
 #include <ThingESP.h>
 
-//Definitions
 #define placa "Arduino UNO"
 #define Voltage_Resolution 5
 #define pin A0 
@@ -21,17 +19,12 @@ float Tambah, Tambah2;
 
 ThingESP8266 thing("arinalhamara", "MonitoringRuang", "fireandair");
 
-
-//Declare Sensor
 MQUnifiedsensor MQ135(placa, Voltage_Resolution, ADC_Bit_Resolution, pin, type);
 char ssid[] = "SERENITY_plus";
 char pass[] = "babykenya";
 
-
-
 void setup() {
-  //Init the serial port communication - to debug the library
-  Serial.begin(115200); //Init serial port
+  Serial.begin(115200);
   thing.SetWiFi(ssid, pass);
   thing.initDevice();
   
@@ -50,15 +43,13 @@ void setup() {
   Tambah = 0;
   Tambah2 = 0;
   
-  
-  //Set math model to calculate the PPM concentration and the value of constants
-  MQ135.setRegressionMethod(1); //_PPM =  a*ratio^b
+  MQ135.setRegressionMethod(1); 
   MQ135.init(); 
   Serial.print("Calibrating please wait.");
   float calcR0 = 0;
   for(int i = 1; i<=10; i ++)
   {
-    MQ135.update(); // Update data, the arduino will be read the voltage on the analog pin
+    MQ135.update();
     calcR0 += MQ135.calibrate(RatioMQ135CleanAir);
     Serial.print(".");
   }
@@ -67,19 +58,17 @@ void setup() {
   
   if(isinf(calcR0)) {Serial.println("Warning: Conection issue founded, R0 is infite (Open circuit detected) please check your wiring and supply"); while(1);}
   if(calcR0 == 0){Serial.println("Warning: Conection issue founded, R0 is zero (Analog pin with short circuit to ground) please check your wiring and supply"); while(1);}
-  /**********  MQ CAlibration ***************/ 
 }
 
 String HandleResponse(String query)
 {
-   MQ135.update(); // Update data, the arduino will be read the voltage on the analog pin
+   MQ135.update();
 
-  MQ135.setA(80.897); MQ135.setB(-2.431); // Configurate the ecuation values to get CO concentration
-  float LPG= MQ135.readSensor(); // Sensor will read PPM concentration using the model and a and b values setted before or in the setup
+  MQ135.setA(80.897); MQ135.setB(-2.431);
+  float LPG= MQ135.readSensor();
 
-  MQ135.setA(110.47); MQ135.setB(-2.862); // Configurate the ecuation values to get CO2 concentration
-  float CO2 = MQ135.readSensor(); // Sensor will read PPM concentration using the model and a and b values setted before or in the setup
-
+  MQ135.setA(110.47); MQ135.setB(-2.862);
+  float CO2 = MQ135.readSensor();
   Tambah = (LPG+150);
   Tambah2 = (CO2+400);
 
@@ -99,13 +88,13 @@ void loop() {
 
   thing.Handle();
   
-  MQ135.update(); // Update data, the arduino will be read the voltage on the analog pin
+  MQ135.update();
 
-  MQ135.setA(80.897); MQ135.setB(-2.431); // Configurate the ecuation values to get CO concentration
-  float LPG= MQ135.readSensor(); // Sensor will read PPM concentration using the model and a and b values setted before or in the setup
+  MQ135.setA(80.897); MQ135.setB(-2.431);
+  float LPG= MQ135.readSensor();
 
-  MQ135.setA(110.47); MQ135.setB(-2.862); // Configurate the ecuation values to get CO2 concentration
-  float CO2 = MQ135.readSensor(); // Sensor will read PPM concentration using the model and a and b values setted before or in the setup
+  MQ135.setA(110.47); MQ135.setB(-2.862);
+  float CO2 = MQ135.readSensor();
 
   Tambah = (LPG+150);
   Tambah2 = (CO2+400);
@@ -136,6 +125,7 @@ void loop() {
   NH4      | 102.2  | -2.473
   Acetona  | 34.668 | -3.369
   */
+  
   if(FireSensor1 == 0)
   {
     digitalWrite(Pompa1, HIGH);
@@ -163,5 +153,5 @@ void loop() {
     digitalWrite(Fan, LOW);
   }
   
-  delay(1000); //Sampling frequency
+  delay(1000);
 }
